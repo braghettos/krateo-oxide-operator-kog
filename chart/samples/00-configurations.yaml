@@ -1,0 +1,256 @@
+# Per-Kind Configuration CRs. oasgen-provider generates a `<Kind>Configuration`
+# CRD for every RestDefinition whose OAS declares an http/bearer scheme; it
+# carries the authentication block. All point at the SAME Secret (oxide-api-token)
+# holding the Oxide API token. Create it first:
+#
+#   kubectl create secret generic oxide-api-token \
+#     --from-literal=token="$(oxide auth status --token)" -n krateo-system
+#
+# Namespace assumed: krateo-system (adjust to your install namespace).
+---
+apiVersion: oxide.ogen.krateo.io/v1alpha1
+kind: OxideProjectConfiguration
+metadata:
+  name: oxide-api
+  namespace: krateo-system
+spec:
+  authentication:
+    bearer:
+      tokenRef:
+        name: oxide-api-token
+        namespace: krateo-system
+        key: token
+---
+apiVersion: oxide.ogen.krateo.io/v1alpha1
+kind: OxideInstanceConfiguration
+metadata:
+  name: oxide-api
+  namespace: krateo-system
+spec:
+  authentication:
+    bearer:
+      tokenRef:
+        name: oxide-api-token
+        namespace: krateo-system
+        key: token
+---
+apiVersion: oxide.ogen.krateo.io/v1alpha1
+kind: OxideDiskConfiguration
+metadata:
+  name: oxide-api
+  namespace: krateo-system
+spec:
+  authentication:
+    bearer:
+      tokenRef:
+        name: oxide-api-token
+        namespace: krateo-system
+        key: token
+---
+apiVersion: oxide.ogen.krateo.io/v1alpha1
+kind: OxideSnapshotConfiguration
+metadata:
+  name: oxide-api
+  namespace: krateo-system
+spec:
+  authentication:
+    bearer:
+      tokenRef:
+        name: oxide-api-token
+        namespace: krateo-system
+        key: token
+---
+apiVersion: oxide.ogen.krateo.io/v1alpha1
+kind: OxideImageConfiguration
+metadata:
+  name: oxide-api
+  namespace: krateo-system
+spec:
+  authentication:
+    bearer:
+      tokenRef:
+        name: oxide-api-token
+        namespace: krateo-system
+        key: token
+---
+apiVersion: oxide.ogen.krateo.io/v1alpha1
+kind: OxideVpcConfiguration
+metadata:
+  name: oxide-api
+  namespace: krateo-system
+spec:
+  authentication:
+    bearer:
+      tokenRef:
+        name: oxide-api-token
+        namespace: krateo-system
+        key: token
+---
+apiVersion: oxide.ogen.krateo.io/v1alpha1
+kind: OxideVpcSubnetConfiguration
+metadata:
+  name: oxide-api
+  namespace: krateo-system
+spec:
+  authentication:
+    bearer:
+      tokenRef:
+        name: oxide-api-token
+        namespace: krateo-system
+        key: token
+---
+apiVersion: oxide.ogen.krateo.io/v1alpha1
+kind: OxideVpcRouterConfiguration
+metadata:
+  name: oxide-api
+  namespace: krateo-system
+spec:
+  authentication:
+    bearer:
+      tokenRef:
+        name: oxide-api-token
+        namespace: krateo-system
+        key: token
+---
+apiVersion: oxide.ogen.krateo.io/v1alpha1
+kind: OxideRouterRouteConfiguration
+metadata:
+  name: oxide-api
+  namespace: krateo-system
+spec:
+  authentication:
+    bearer:
+      tokenRef:
+        name: oxide-api-token
+        namespace: krateo-system
+        key: token
+---
+apiVersion: oxide.ogen.krateo.io/v1alpha1
+kind: OxideFloatingIpConfiguration
+metadata:
+  name: oxide-api
+  namespace: krateo-system
+spec:
+  authentication:
+    bearer:
+      tokenRef:
+        name: oxide-api-token
+        namespace: krateo-system
+        key: token
+---
+apiVersion: oxide.ogen.krateo.io/v1alpha1
+kind: OxideNetworkInterfaceConfiguration
+metadata:
+  name: oxide-api
+  namespace: krateo-system
+spec:
+  authentication:
+    bearer:
+      tokenRef:
+        name: oxide-api-token
+        namespace: krateo-system
+        key: token
+---
+apiVersion: oxide.ogen.krateo.io/v1alpha1
+kind: OxideAffinityGroupConfiguration
+metadata:
+  name: oxide-api
+  namespace: krateo-system
+spec:
+  authentication:
+    bearer:
+      tokenRef:
+        name: oxide-api-token
+        namespace: krateo-system
+        key: token
+---
+apiVersion: oxide.ogen.krateo.io/v1alpha1
+kind: OxideAntiAffinityGroupConfiguration
+metadata:
+  name: oxide-api
+  namespace: krateo-system
+spec:
+  authentication:
+    bearer:
+      tokenRef:
+        name: oxide-api-token
+        namespace: krateo-system
+        key: token
+---
+apiVersion: oxide.ogen.krateo.io/v1alpha1
+kind: OxideInternetGatewayConfiguration
+metadata:
+  name: oxide-api
+  namespace: krateo-system
+spec:
+  authentication:
+    bearer:
+      tokenRef:
+        name: oxide-api-token
+        namespace: krateo-system
+        key: token
+---
+apiVersion: oxide.ogen.krateo.io/v1alpha1
+kind: OxideSshKeyConfiguration
+metadata:
+  name: oxide-api
+  namespace: krateo-system
+spec:
+  authentication:
+    bearer:
+      tokenRef:
+        name: oxide-api-token
+        namespace: krateo-system
+        key: token
+---
+apiVersion: oxide.ogen.krateo.io/v1alpha1
+kind: OxideCertificateConfiguration
+metadata:
+  name: oxide-api
+  namespace: krateo-system
+spec:
+  authentication:
+    bearer:
+      tokenRef:
+        name: oxide-api-token
+        namespace: krateo-system
+        key: token
+---
+apiVersion: oxide.ogen.krateo.io/v1alpha1
+kind: OxideSiloConfiguration
+metadata:
+  name: oxide-api
+  namespace: krateo-system
+spec:
+  authentication:
+    bearer:
+      tokenRef:
+        name: oxide-api-token
+        namespace: krateo-system
+        key: token
+---
+apiVersion: oxide.ogen.krateo.io/v1alpha1
+kind: OxideIpPoolConfiguration
+metadata:
+  name: oxide-api
+  namespace: krateo-system
+spec:
+  authentication:
+    bearer:
+      tokenRef:
+        name: oxide-api-token
+        namespace: krateo-system
+        key: token
+---
+apiVersion: oxide.ogen.krateo.io/v1alpha1
+kind: OxideSubnetPoolConfiguration
+metadata:
+  name: oxide-api
+  namespace: krateo-system
+spec:
+  authentication:
+    bearer:
+      tokenRef:
+        name: oxide-api-token
+        namespace: krateo-system
+        key: token

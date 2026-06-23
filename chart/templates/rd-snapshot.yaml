@@ -1,0 +1,43 @@
+{{- if .Values.restDefinitions.snapshot.enabled }}
+apiVersion: ogen.krateo.io/v1alpha1
+kind: RestDefinition
+metadata:
+  name: {{ .Release.Name }}-snapshot
+  labels:
+    {{- include "krateo-oxide-operator-kog.labels" . | nindent 4 }}
+  {{- if .Values.verbose }}
+  annotations:
+    krateo.io/connector-verbose: "true"
+  {{- end }}
+spec:
+  oasPath: configmap://{{ .Release.Namespace }}/{{ .Release.Name }}-snapshot/snapshot.yaml
+  resourceGroup: {{ .Values.resourceGroup }}
+  resource:
+    kind: {{ .Values.restDefinitions.snapshot.kind }}
+    # OxideSnapshot is addressed by its user-supplied `name` (the {snapshot} path param); `id` is
+    # server-generated/read-only. Project-scoped: the `project` query param is a spec field.
+    identifiers:
+      - name
+    additionalStatusFields:
+      - id
+    # The {snapshot} path placeholder would otherwise surface as a redundant spec field;
+    # exclude it and source its value from spec.name via requestFieldMapping below.
+    excludedSpecFields:
+      - snapshot
+    verbsDescription:
+      - action: create
+        method: POST
+        path: /v1/snapshots
+      - action: get
+        method: GET
+        path: /v1/snapshots/{snapshot}
+        requestFieldMapping:
+          - inPath: snapshot
+            inCustomResource: spec.name
+      - action: delete
+        method: DELETE
+        path: /v1/snapshots/{snapshot}
+        requestFieldMapping:
+          - inPath: snapshot
+            inCustomResource: spec.name
+{{- end }}

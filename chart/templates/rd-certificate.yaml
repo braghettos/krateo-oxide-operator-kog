@@ -1,0 +1,43 @@
+{{- if .Values.restDefinitions.certificate.enabled }}
+apiVersion: ogen.krateo.io/v1alpha1
+kind: RestDefinition
+metadata:
+  name: {{ .Release.Name }}-certificate
+  labels:
+    {{- include "krateo-oxide-operator-kog.labels" . | nindent 4 }}
+  {{- if .Values.verbose }}
+  annotations:
+    krateo.io/connector-verbose: "true"
+  {{- end }}
+spec:
+  oasPath: configmap://{{ .Release.Namespace }}/{{ .Release.Name }}-certificate/certificate.yaml
+  resourceGroup: {{ .Values.resourceGroup }}
+  resource:
+    kind: {{ .Values.restDefinitions.certificate.kind }}
+    # OxideCertificate is addressed by its user-supplied `name` (the {certificate} path param); `id` is
+    # server-generated/read-only. Silo-scoped resource.
+    identifiers:
+      - name
+    additionalStatusFields:
+      - id
+    # The {certificate} path placeholder would otherwise surface as a redundant spec field;
+    # exclude it and source its value from spec.name via requestFieldMapping below.
+    excludedSpecFields:
+      - certificate
+    verbsDescription:
+      - action: create
+        method: POST
+        path: /v1/certificates
+      - action: get
+        method: GET
+        path: /v1/certificates/{certificate}
+        requestFieldMapping:
+          - inPath: certificate
+            inCustomResource: spec.name
+      - action: delete
+        method: DELETE
+        path: /v1/certificates/{certificate}
+        requestFieldMapping:
+          - inPath: certificate
+            inCustomResource: spec.name
+{{- end }}

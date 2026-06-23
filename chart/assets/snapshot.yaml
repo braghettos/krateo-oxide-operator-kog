@@ -1,0 +1,142 @@
+openapi: 3.0.3
+info:
+  title: Oxide Region API - Snapshot (KOG subset)
+  version: v1
+  description: 'Hand-curated OpenAPI 3.0 subset of the Oxide Region API for the Snapshot resource, sufficient
+    to manage it declaratively through the Krateo Operator Generator (KOG). A point-in-time snapshot of
+    a disk. Immutable (no update verb).
+
+
+    Oxide addresses resources by their user-supplied `name` (the {snapshot} path parameter); the server-generated
+    `id` is read-only. The http/bearer security scheme makes oasgen-provider emit a OxideSnapshotConfiguration
+    CRD carrying the API token.'
+servers:
+- url: '{{ .Values.oxide.apiUrl }}'
+  description: Base URL of the Oxide silo API (no trailing slash).
+security:
+- bearer: []
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+      description: 'Oxide API token (Authorization: Bearer <token>).'
+  schemas:
+    OxideSnapshotCreate:
+      type: object
+      required:
+      - name
+      - description
+      - disk
+      properties:
+        name:
+          type: string
+          description: Names must begin with a lowercase ASCII letter, be composed of lowercase/uppercase
+            ASCII, numbers and '-', and may not end with '-'. At most 63 chars. Cannot be a bare UUID.
+          minLength: 1
+          maxLength: 63
+          pattern: ^(?![0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$)^[a-z]([a-zA-Z0-9-]*[a-zA-Z0-9]+)?$
+        description:
+          type: string
+          description: Human-readable free-form text about the resource.
+        disk:
+          type: string
+          description: The disk to snapshot (name or UUID).
+    OxideSnapshot:
+      type: object
+      required:
+      - id
+      - name
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Server-generated immutable identifier.
+        name:
+          type: string
+          description: User-supplied name (natural key).
+        description:
+          type: string
+        time_created:
+          type: string
+          format: date-time
+          readOnly: true
+        time_modified:
+          type: string
+          format: date-time
+          readOnly: true
+paths:
+  /v1/snapshots:
+    post:
+      operationId: createOxideSnapshot
+      summary: Create Snapshot
+      tags:
+      - snapshot
+      parameters:
+      - name: project
+        in: query
+        required: true
+        schema:
+          type: string
+          description: A Name or a UUID.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OxideSnapshotCreate'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OxideSnapshot'
+  /v1/snapshots/{snapshot}:
+    get:
+      operationId: getOxideSnapshot
+      summary: Get Snapshot
+      tags:
+      - snapshot
+      parameters:
+      - name: snapshot
+        in: path
+        required: true
+        schema:
+          type: string
+          description: A Name or a UUID.
+      - name: project
+        in: query
+        required: false
+        schema:
+          type: string
+          description: A Name or a UUID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OxideSnapshot'
+    delete:
+      operationId: deleteOxideSnapshot
+      summary: Delete Snapshot
+      tags:
+      - snapshot
+      parameters:
+      - name: snapshot
+        in: path
+        required: true
+        schema:
+          type: string
+          description: A Name or a UUID.
+      - name: project
+        in: query
+        required: false
+        schema:
+          type: string
+          description: A Name or a UUID.
+      responses:
+        '204':
+          description: Deleted

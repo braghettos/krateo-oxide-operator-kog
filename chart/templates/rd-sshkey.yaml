@@ -1,0 +1,43 @@
+{{- if .Values.restDefinitions.sshkey.enabled }}
+apiVersion: ogen.krateo.io/v1alpha1
+kind: RestDefinition
+metadata:
+  name: {{ .Release.Name }}-sshkey
+  labels:
+    {{- include "krateo-oxide-operator-kog.labels" . | nindent 4 }}
+  {{- if .Values.verbose }}
+  annotations:
+    krateo.io/connector-verbose: "true"
+  {{- end }}
+spec:
+  oasPath: configmap://{{ .Release.Namespace }}/{{ .Release.Name }}-sshkey/sshkey.yaml
+  resourceGroup: {{ .Values.resourceGroup }}
+  resource:
+    kind: {{ .Values.restDefinitions.sshkey.kind }}
+    # OxideSshKey is addressed by its user-supplied `name` (the {ssh_key} path param); `id` is
+    # server-generated/read-only. Scoped to the authenticated silo user.
+    identifiers:
+      - name
+    additionalStatusFields:
+      - id
+    # The {ssh_key} path placeholder would otherwise surface as a redundant spec field;
+    # exclude it and source its value from spec.name via requestFieldMapping below.
+    excludedSpecFields:
+      - ssh_key
+    verbsDescription:
+      - action: create
+        method: POST
+        path: /v1/me/ssh-keys
+      - action: get
+        method: GET
+        path: /v1/me/ssh-keys/{ssh_key}
+        requestFieldMapping:
+          - inPath: ssh_key
+            inCustomResource: spec.name
+      - action: delete
+        method: DELETE
+        path: /v1/me/ssh-keys/{ssh_key}
+        requestFieldMapping:
+          - inPath: ssh_key
+            inCustomResource: spec.name
+{{- end }}

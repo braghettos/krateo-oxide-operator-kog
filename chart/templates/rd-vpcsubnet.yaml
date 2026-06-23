@@ -1,0 +1,49 @@
+{{- if .Values.restDefinitions.vpcsubnet.enabled }}
+apiVersion: ogen.krateo.io/v1alpha1
+kind: RestDefinition
+metadata:
+  name: {{ .Release.Name }}-vpcsubnet
+  labels:
+    {{- include "krateo-oxide-operator-kog.labels" . | nindent 4 }}
+  {{- if .Values.verbose }}
+  annotations:
+    krateo.io/connector-verbose: "true"
+  {{- end }}
+spec:
+  oasPath: configmap://{{ .Release.Namespace }}/{{ .Release.Name }}-vpcsubnet/vpcsubnet.yaml
+  resourceGroup: {{ .Values.resourceGroup }}
+  resource:
+    kind: {{ .Values.restDefinitions.vpcsubnet.kind }}
+    # OxideVpcSubnet is addressed by its user-supplied `name` (the {subnet} path param); `id` is
+    # server-generated/read-only. VPC-scoped via the `vpc` (and optional `project`) query param.
+    identifiers:
+      - name
+    additionalStatusFields:
+      - id
+    # The {subnet} path placeholder would otherwise surface as a redundant spec field;
+    # exclude it and source its value from spec.name via requestFieldMapping below.
+    excludedSpecFields:
+      - subnet
+    verbsDescription:
+      - action: create
+        method: POST
+        path: /v1/vpc-subnets
+      - action: get
+        method: GET
+        path: /v1/vpc-subnets/{subnet}
+        requestFieldMapping:
+          - inPath: subnet
+            inCustomResource: spec.name
+      - action: update
+        method: PUT
+        path: /v1/vpc-subnets/{subnet}
+        requestFieldMapping:
+          - inPath: subnet
+            inCustomResource: spec.name
+      - action: delete
+        method: DELETE
+        path: /v1/vpc-subnets/{subnet}
+        requestFieldMapping:
+          - inPath: subnet
+            inCustomResource: spec.name
+{{- end }}

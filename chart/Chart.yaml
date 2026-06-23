@@ -1,0 +1,36 @@
+apiVersion: v2
+name: krateo-oxide-operator-kog
+description: >-
+  Krateo Operator Generator (KOG) packaging that turns Oxide Computer Cloud
+  resources (projects, instances, disks, snapshots, images, VPCs and their
+  subnets/routers/routes, floating IPs, network interfaces, affinity and
+  anti-affinity groups, internet gateways, SSH keys, certificates, silos, IP
+  pools and subnet pools) into native Kubernetes custom resources. oasgen-provider
+  + rest-dynamic-controller reconcile each CR against the Oxide Region API. The
+  Oxide API token is supplied via a Kubernetes Secret referenced by each
+  generated Configuration CR.
+type: application
+version: 0.1.0
+appVersion: "2026060800.0.0"
+home: https://oxide.computer/
+icon: https://raw.githubusercontent.com/krateoplatformops/krateo/main/docs/media/logo.svg
+keywords:
+  - krateo
+  - kog
+  - oasgen-provider
+  - oxide
+  - cloud
+  - infrastructure
+  - operator
+annotations:
+  krateo.io/category: infrastructure
+  krateo.io/display-name: Oxide Computer KOG
+  krateo.io/maturity: beta
+  krateoSupportedVersion: ">= 2.5.1"
+sources:
+  - https://github.com/braghettos/krateo-oxide-operator-kog
+  - https://github.com/oxidecomputer/omicron/tree/main/openapi/nexus
+  - https://github.com/krateoplatformops/oasgen-provider
+  - https://github.com/krateoplatformops/rest-dynamic-controller
+maintainers:
+  - name: braghettos

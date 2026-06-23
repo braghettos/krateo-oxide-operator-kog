@@ -1,0 +1,187 @@
+openapi: 3.0.3
+info:
+  title: Oxide Region API - Disk (KOG subset)
+  version: v1
+  description: 'Hand-curated OpenAPI 3.0 subset of the Oxide Region API for the Disk resource, sufficient
+    to manage it declaratively through the Krateo Operator Generator (KOG). A block storage volume. Disks
+    are immutable after creation (no update verb); change by delete + recreate.
+
+
+    Oxide addresses resources by their user-supplied `name` (the {disk} path parameter); the server-generated
+    `id` is read-only. The http/bearer security scheme makes oasgen-provider emit a OxideDiskConfiguration
+    CRD carrying the API token.'
+servers:
+- url: '{{ .Values.oxide.apiUrl }}'
+  description: Base URL of the Oxide silo API (no trailing slash).
+security:
+- bearer: []
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+      description: 'Oxide API token (Authorization: Bearer <token>).'
+  schemas:
+    OxideDiskCreate:
+      type: object
+      required:
+      - name
+      - description
+      - size
+      - disk_backend
+      properties:
+        name:
+          type: string
+          description: Names must begin with a lowercase ASCII letter, be composed of lowercase/uppercase
+            ASCII, numbers and '-', and may not end with '-'. At most 63 chars. Cannot be a bare UUID.
+          minLength: 1
+          maxLength: 63
+          pattern: ^(?![0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$)^[a-z]([a-zA-Z0-9-]*[a-zA-Z0-9]+)?$
+        description:
+          type: string
+          description: Human-readable free-form text about the resource.
+        size:
+          type: integer
+          format: int64
+          description: Total disk size in bytes.
+        disk_backend:
+          type: object
+          description: The source of a Disk's blocks.
+          required:
+          - type
+          properties:
+            type:
+              type: string
+              enum:
+              - distributed
+              - local
+              description: 'distributed: backed by the rack''s distributed storage (default); local: sled-local.'
+            disk_source:
+              type: object
+              description: The initial contents of a distributed disk's blocks.
+              required:
+              - type
+              properties:
+                type:
+                  type: string
+                  enum:
+                  - blank
+                  - snapshot
+                  - image
+                  description: 'blank: empty disk; snapshot: clone of a snapshot; image: clone of an image.'
+                block_size:
+                  type: integer
+                  enum:
+                  - 512
+                  - 2048
+                  - 4096
+                  description: Block size in bytes (required when type=blank).
+                image_id:
+                  type: string
+                  format: uuid
+                  description: Source image UUID (required when type=image).
+                snapshot_id:
+                  type: string
+                  format: uuid
+                  description: Source snapshot UUID (required when type=snapshot).
+                read_only:
+                  type: boolean
+                  description: Create the disk read-only (snapshot/image sources only).
+    OxideDisk:
+      type: object
+      required:
+      - id
+      - name
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Server-generated immutable identifier.
+        name:
+          type: string
+          description: User-supplied name (natural key).
+        description:
+          type: string
+        time_created:
+          type: string
+          format: date-time
+          readOnly: true
+        time_modified:
+          type: string
+          format: date-time
+          readOnly: true
+paths:
+  /v1/disks:
+    post:
+      operationId: createOxideDisk
+      summary: Create Disk
+      tags:
+      - disk
+      parameters:
+      - name: project
+        in: query
+        required: true
+        schema:
+          type: string
+          description: A Name or a UUID.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OxideDiskCreate'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OxideDisk'
+  /v1/disks/{disk}:
+    get:
+      operationId: getOxideDisk
+      summary: Get Disk
+      tags:
+      - disk
+      parameters:
+      - name: disk
+        in: path
+        required: true
+        schema:
+          type: string
+          description: A Name or a UUID.
+      - name: project
+        in: query
+        required: false
+        schema:
+          type: string
+          description: A Name or a UUID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OxideDisk'
+    delete:
+      operationId: deleteOxideDisk
+      summary: Delete Disk
+      tags:
+      - disk
+      parameters:
+      - name: disk
+        in: path
+        required: true
+        schema:
+          type: string
+          description: A Name or a UUID.
+      - name: project
+        in: query
+        required: false
+        schema:
+          type: string
+          description: A Name or a UUID.
+      responses:
+        '204':
+          description: Deleted

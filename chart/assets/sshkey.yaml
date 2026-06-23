@@ -1,0 +1,124 @@
+openapi: 3.0.3
+info:
+  title: Oxide Region API - SSH Key (KOG subset)
+  version: v1
+  description: 'Hand-curated OpenAPI 3.0 subset of the Oxide Region API for the SSH Key resource, sufficient
+    to manage it declaratively through the Krateo Operator Generator (KOG). An SSH public key for the
+    authenticated silo user. Immutable (no update verb).
+
+
+    Oxide addresses resources by their user-supplied `name` (the {ssh_key} path parameter); the server-generated
+    `id` is read-only. The http/bearer security scheme makes oasgen-provider emit a OxideSshKeyConfiguration
+    CRD carrying the API token.'
+servers:
+- url: '{{ .Values.oxide.apiUrl }}'
+  description: Base URL of the Oxide silo API (no trailing slash).
+security:
+- bearer: []
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+      description: 'Oxide API token (Authorization: Bearer <token>).'
+  schemas:
+    OxideSshKeyCreate:
+      type: object
+      required:
+      - name
+      - description
+      - public_key
+      properties:
+        name:
+          type: string
+          description: Names must begin with a lowercase ASCII letter, be composed of lowercase/uppercase
+            ASCII, numbers and '-', and may not end with '-'. At most 63 chars. Cannot be a bare UUID.
+          minLength: 1
+          maxLength: 63
+          pattern: ^(?![0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$)^[a-z]([a-zA-Z0-9-]*[a-zA-Z0-9]+)?$
+        description:
+          type: string
+          description: Human-readable free-form text about the resource.
+        public_key:
+          type: string
+          description: SSH public key, e.g. 'ssh-ed25519 AAAAC3Nza...'.
+    OxideSshKey:
+      type: object
+      required:
+      - id
+      - name
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Server-generated immutable identifier.
+        name:
+          type: string
+          description: User-supplied name (natural key).
+        description:
+          type: string
+        time_created:
+          type: string
+          format: date-time
+          readOnly: true
+        time_modified:
+          type: string
+          format: date-time
+          readOnly: true
+paths:
+  /v1/me/ssh-keys:
+    post:
+      operationId: createOxideSshKey
+      summary: Create SSH Key
+      tags:
+      - sshkey
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OxideSshKeyCreate'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OxideSshKey'
+  /v1/me/ssh-keys/{ssh_key}:
+    get:
+      operationId: getOxideSshKey
+      summary: Get SSH Key
+      tags:
+      - sshkey
+      parameters:
+      - name: ssh_key
+        in: path
+        required: true
+        schema:
+          type: string
+          description: A Name or a UUID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OxideSshKey'
+    delete:
+      operationId: deleteOxideSshKey
+      summary: Delete SSH Key
+      tags:
+      - sshkey
+      parameters:
+      - name: ssh_key
+        in: path
+        required: true
+        schema:
+          type: string
+          description: A Name or a UUID.
+      responses:
+        '204':
+          description: Deleted

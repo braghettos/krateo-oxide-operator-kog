@@ -1,0 +1,49 @@
+{{- if .Values.restDefinitions.vpc.enabled }}
+apiVersion: ogen.krateo.io/v1alpha1
+kind: RestDefinition
+metadata:
+  name: {{ .Release.Name }}-vpc
+  labels:
+    {{- include "krateo-oxide-operator-kog.labels" . | nindent 4 }}
+  {{- if .Values.verbose }}
+  annotations:
+    krateo.io/connector-verbose: "true"
+  {{- end }}
+spec:
+  oasPath: configmap://{{ .Release.Namespace }}/{{ .Release.Name }}-vpc/vpc.yaml
+  resourceGroup: {{ .Values.resourceGroup }}
+  resource:
+    kind: {{ .Values.restDefinitions.vpc.kind }}
+    # OxideVpc is addressed by its user-supplied `name` (the {vpc} path param); `id` is
+    # server-generated/read-only. Project-scoped: the `project` query param is a spec field.
+    identifiers:
+      - name
+    additionalStatusFields:
+      - id
+    # The {vpc} path placeholder would otherwise surface as a redundant spec field;
+    # exclude it and source its value from spec.name via requestFieldMapping below.
+    excludedSpecFields:
+      - vpc
+    verbsDescription:
+      - action: create
+        method: POST
+        path: /v1/vpcs
+      - action: get
+        method: GET
+        path: /v1/vpcs/{vpc}
+        requestFieldMapping:
+          - inPath: vpc
+            inCustomResource: spec.name
+      - action: update
+        method: PUT
+        path: /v1/vpcs/{vpc}
+        requestFieldMapping:
+          - inPath: vpc
+            inCustomResource: spec.name
+      - action: delete
+        method: DELETE
+        path: /v1/vpcs/{vpc}
+        requestFieldMapping:
+          - inPath: vpc
+            inCustomResource: spec.name
+{{- end }}

@@ -1,0 +1,80 @@
+# End-to-end example expressed as Oxide-KOG custom resources: a project, a VPC,
+# a disk and an instance that boots from it. Every resource references the
+# `oxide-api` Configuration (see 00-configurations.yaml) for the API token.
+#
+# Conventions to know:
+#   * `name` is the user-supplied natural key; Oxide addresses the resource by it
+#     (it fills the {name}/{instance}/{disk}/... path parameter). `status.id`
+#     carries the server-generated UUID.
+#   * Project-scoped resources take a `project` field (the project name), which
+#     becomes the `?project=` query parameter. VPC-scoped resources also take a
+#     `vpc` field; router routes take a `router` field; network interfaces take
+#     an `instance` field.
+---
+apiVersion: oxide.ogen.krateo.io/v1alpha1
+kind: OxideProject
+metadata:
+  name: demo
+  namespace: krateo-system
+spec:
+  configurationRef:
+    name: oxide-api
+    namespace: krateo-system
+  name: demo
+  description: "Krateo-managed demo project"
+---
+apiVersion: oxide.ogen.krateo.io/v1alpha1
+kind: OxideVpc
+metadata:
+  name: demo-vpc
+  namespace: krateo-system
+spec:
+  configurationRef:
+    name: oxide-api
+    namespace: krateo-system
+  project: demo
+  name: demo-vpc
+  description: "Default VPC for the demo project"
+  dns_name: demo-vpc
+---
+apiVersion: oxide.ogen.krateo.io/v1alpha1
+kind: OxideDisk
+metadata:
+  name: demo-boot
+  namespace: krateo-system
+spec:
+  configurationRef:
+    name: oxide-api
+    namespace: krateo-system
+  project: demo
+  name: demo-boot
+  description: "Boot disk created from an image"
+  size: 21474836480   # 20 GiB, in bytes
+  disk_backend:
+    type: distributed
+    disk_source:
+      type: image
+      image_id: "00000000-0000-0000-0000-000000000000"   # replace with a real image UUID
+---
+apiVersion: oxide.ogen.krateo.io/v1alpha1
+kind: OxideInstance
+metadata:
+  name: demo-vm
+  namespace: krateo-system
+spec:
+  configurationRef:
+    name: oxide-api
+    namespace: krateo-system
+  project: demo
+  name: demo-vm
+  description: "Krateo-managed instance"
+  hostname: demo-vm
+  memory: 4294967296   # 4 GiB, in bytes
+  ncpus: 2
+  start: true
+  boot_disk: demo-boot
+  external_ips:
+    - type: ephemeral
+  disks:
+    - type: attach
+      name: demo-boot

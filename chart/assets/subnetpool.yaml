@@ -1,0 +1,165 @@
+openapi: 3.0.3
+info:
+  title: Oxide Region API - Subnet Pool (KOG subset)
+  version: v1
+  description: 'Hand-curated OpenAPI 3.0 subset of the Oxide Region API for the Subnet Pool resource,
+    sufficient to manage it declaratively through the Krateo Operator Generator (KOG). A fleet subnet
+    pool. FLEET-ADMIN scope. Members and silo links are managed via separate (action) endpoints.
+
+
+    Oxide addresses resources by their user-supplied `name` (the {pool} path parameter); the server-generated
+    `id` is read-only. The http/bearer security scheme makes oasgen-provider emit a OxideSubnetPoolConfiguration
+    CRD carrying the API token.'
+servers:
+- url: '{{ .Values.oxide.apiUrl }}'
+  description: Base URL of the Oxide silo API (no trailing slash).
+security:
+- bearer: []
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+      description: 'Oxide API token (Authorization: Bearer <token>).'
+  schemas:
+    OxideSubnetPoolCreate:
+      type: object
+      required:
+      - name
+      - description
+      - ip_version
+      properties:
+        name:
+          type: string
+          description: Names must begin with a lowercase ASCII letter, be composed of lowercase/uppercase
+            ASCII, numbers and '-', and may not end with '-'. At most 63 chars. Cannot be a bare UUID.
+          minLength: 1
+          maxLength: 63
+          pattern: ^(?![0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$)^[a-z]([a-zA-Z0-9-]*[a-zA-Z0-9]+)?$
+        description:
+          type: string
+          description: Human-readable free-form text about the resource.
+        ip_version:
+          type: string
+          enum:
+          - v4
+          - v6
+          description: IP version for the pool; all member subnets must match.
+    OxideSubnetPoolUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Names must begin with a lowercase ASCII letter, be composed of lowercase/uppercase
+            ASCII, numbers and '-', and may not end with '-'. At most 63 chars. Cannot be a bare UUID.
+          minLength: 1
+          maxLength: 63
+          pattern: ^(?![0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$)^[a-z]([a-zA-Z0-9-]*[a-zA-Z0-9]+)?$
+        description:
+          type: string
+          description: Human-readable free-form text about the resource.
+    OxideSubnetPool:
+      type: object
+      required:
+      - id
+      - name
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Server-generated immutable identifier.
+        name:
+          type: string
+          description: User-supplied name (natural key).
+        description:
+          type: string
+        time_created:
+          type: string
+          format: date-time
+          readOnly: true
+        time_modified:
+          type: string
+          format: date-time
+          readOnly: true
+paths:
+  /v1/system/subnet-pools:
+    post:
+      operationId: createOxideSubnetPool
+      summary: Create Subnet Pool
+      tags:
+      - subnetpool
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OxideSubnetPoolCreate'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OxideSubnetPool'
+  /v1/system/subnet-pools/{pool}:
+    get:
+      operationId: getOxideSubnetPool
+      summary: Get Subnet Pool
+      tags:
+      - subnetpool
+      parameters:
+      - name: pool
+        in: path
+        required: true
+        schema:
+          type: string
+          description: A Name or a UUID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OxideSubnetPool'
+    put:
+      operationId: updateOxideSubnetPool
+      summary: Update Subnet Pool
+      tags:
+      - subnetpool
+      parameters:
+      - name: pool
+        in: path
+        required: true
+        schema:
+          type: string
+          description: A Name or a UUID.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OxideSubnetPoolUpdate'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OxideSubnetPool'
+    delete:
+      operationId: deleteOxideSubnetPool
+      summary: Delete Subnet Pool
+      tags:
+      - subnetpool
+      parameters:
+      - name: pool
+        in: path
+        required: true
+        schema:
+          type: string
+          description: A Name or a UUID.
+      responses:
+        '204':
+          description: Deleted

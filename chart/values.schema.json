@@ -1,0 +1,425 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "type": "object",
+  "title": "Krateo Oxide Operator KOG",
+  "description": "Krateo Operator Generator (KOG) that turns Oxide Computer Cloud resources into native Kubernetes custom resources. oasgen-provider + rest-dynamic-controller reconcile each CR against the Oxide Region API; the Oxide API token is supplied via a Kubernetes Secret referenced by each generated Configuration CR.",
+  "required": [
+    "oxide"
+  ],
+  "properties": {
+    "oxide": {
+      "type": "object",
+      "title": "Oxide target",
+      "required": [
+        "apiUrl"
+      ],
+      "properties": {
+        "apiUrl": {
+          "type": "string",
+          "title": "Oxide API URL",
+          "description": "Base URL of the Oxide silo API the generated controllers call (no trailing slash). Injected into every OAS asset's servers[0].url via Helm tpl.",
+          "default": "https://oxide.example.com"
+        }
+      }
+    },
+    "auth": {
+      "type": "object",
+      "title": "API token",
+      "description": "Bearer-token contract. rest-dynamic-controller reads the Oxide API token from a Secret referenced by each CR's Configuration. Oxide device tokens are long-lived, so no rotation machinery is required.",
+      "properties": {
+        "secretName": {
+          "type": "string",
+          "title": "Token Secret name",
+          "description": "Name of the Secret holding the Oxide API token.",
+          "default": "oxide-api-token"
+        },
+        "secretKey": {
+          "type": "string",
+          "title": "Token Secret key",
+          "description": "Key within the Secret that holds the token value.",
+          "default": "token"
+        }
+      }
+    },
+    "restDefinitions": {
+      "type": "object",
+      "title": "RestDefinitions",
+      "description": "Which RestDefinitions to emit. Each maps 1:1 to an assets/<key>.yaml OAS. The kind is prefixed Oxide to avoid crdgen collisions with same-named body/path identifiers.",
+      "properties": {
+        "project": {
+          "type": "object",
+          "title": "Project",
+          "description": "OxideProject RestDefinition.",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "title": "Enabled",
+              "description": "Emit the OxideProject RestDefinition.",
+              "default": true
+            },
+            "kind": {
+              "type": "string",
+              "title": "Kind",
+              "description": "Kubernetes kind for the generated CRD.",
+              "default": "OxideProject"
+            }
+          }
+        },
+        "instance": {
+          "type": "object",
+          "title": "Instance",
+          "description": "OxideInstance RestDefinition.",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "title": "Enabled",
+              "description": "Emit the OxideInstance RestDefinition.",
+              "default": true
+            },
+            "kind": {
+              "type": "string",
+              "title": "Kind",
+              "description": "Kubernetes kind for the generated CRD.",
+              "default": "OxideInstance"
+            }
+          }
+        },
+        "disk": {
+          "type": "object",
+          "title": "Disk",
+          "description": "OxideDisk RestDefinition.",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "title": "Enabled",
+              "description": "Emit the OxideDisk RestDefinition.",
+              "default": true
+            },
+            "kind": {
+              "type": "string",
+              "title": "Kind",
+              "description": "Kubernetes kind for the generated CRD.",
+              "default": "OxideDisk"
+            }
+          }
+        },
+        "snapshot": {
+          "type": "object",
+          "title": "Snapshot",
+          "description": "OxideSnapshot RestDefinition.",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "title": "Enabled",
+              "description": "Emit the OxideSnapshot RestDefinition.",
+              "default": true
+            },
+            "kind": {
+              "type": "string",
+              "title": "Kind",
+              "description": "Kubernetes kind for the generated CRD.",
+              "default": "OxideSnapshot"
+            }
+          }
+        },
+        "image": {
+          "type": "object",
+          "title": "Image",
+          "description": "OxideImage RestDefinition.",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "title": "Enabled",
+              "description": "Emit the OxideImage RestDefinition.",
+              "default": true
+            },
+            "kind": {
+              "type": "string",
+              "title": "Kind",
+              "description": "Kubernetes kind for the generated CRD.",
+              "default": "OxideImage"
+            }
+          }
+        },
+        "vpc": {
+          "type": "object",
+          "title": "VPC",
+          "description": "OxideVpc RestDefinition.",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "title": "Enabled",
+              "description": "Emit the OxideVpc RestDefinition.",
+              "default": true
+            },
+            "kind": {
+              "type": "string",
+              "title": "Kind",
+              "description": "Kubernetes kind for the generated CRD.",
+              "default": "OxideVpc"
+            }
+          }
+        },
+        "vpcsubnet": {
+          "type": "object",
+          "title": "VPC Subnet",
+          "description": "OxideVpcSubnet RestDefinition.",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "title": "Enabled",
+              "description": "Emit the OxideVpcSubnet RestDefinition.",
+              "default": true
+            },
+            "kind": {
+              "type": "string",
+              "title": "Kind",
+              "description": "Kubernetes kind for the generated CRD.",
+              "default": "OxideVpcSubnet"
+            }
+          }
+        },
+        "vpcrouter": {
+          "type": "object",
+          "title": "VPC Router",
+          "description": "OxideVpcRouter RestDefinition.",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "title": "Enabled",
+              "description": "Emit the OxideVpcRouter RestDefinition.",
+              "default": true
+            },
+            "kind": {
+              "type": "string",
+              "title": "Kind",
+              "description": "Kubernetes kind for the generated CRD.",
+              "default": "OxideVpcRouter"
+            }
+          }
+        },
+        "routerroute": {
+          "type": "object",
+          "title": "Router Route",
+          "description": "OxideRouterRoute RestDefinition.",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "title": "Enabled",
+              "description": "Emit the OxideRouterRoute RestDefinition.",
+              "default": true
+            },
+            "kind": {
+              "type": "string",
+              "title": "Kind",
+              "description": "Kubernetes kind for the generated CRD.",
+              "default": "OxideRouterRoute"
+            }
+          }
+        },
+        "floatingip": {
+          "type": "object",
+          "title": "Floating IP",
+          "description": "OxideFloatingIp RestDefinition.",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "title": "Enabled",
+              "description": "Emit the OxideFloatingIp RestDefinition.",
+              "default": true
+            },
+            "kind": {
+              "type": "string",
+              "title": "Kind",
+              "description": "Kubernetes kind for the generated CRD.",
+              "default": "OxideFloatingIp"
+            }
+          }
+        },
+        "networkinterface": {
+          "type": "object",
+          "title": "Network Interface",
+          "description": "OxideNetworkInterface RestDefinition.",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "title": "Enabled",
+              "description": "Emit the OxideNetworkInterface RestDefinition.",
+              "default": true
+            },
+            "kind": {
+              "type": "string",
+              "title": "Kind",
+              "description": "Kubernetes kind for the generated CRD.",
+              "default": "OxideNetworkInterface"
+            }
+          }
+        },
+        "affinitygroup": {
+          "type": "object",
+          "title": "Affinity Group",
+          "description": "OxideAffinityGroup RestDefinition.",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "title": "Enabled",
+              "description": "Emit the OxideAffinityGroup RestDefinition.",
+              "default": true
+            },
+            "kind": {
+              "type": "string",
+              "title": "Kind",
+              "description": "Kubernetes kind for the generated CRD.",
+              "default": "OxideAffinityGroup"
+            }
+          }
+        },
+        "antiaffinitygroup": {
+          "type": "object",
+          "title": "Anti-Affinity Group",
+          "description": "OxideAntiAffinityGroup RestDefinition.",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "title": "Enabled",
+              "description": "Emit the OxideAntiAffinityGroup RestDefinition.",
+              "default": true
+            },
+            "kind": {
+              "type": "string",
+              "title": "Kind",
+              "description": "Kubernetes kind for the generated CRD.",
+              "default": "OxideAntiAffinityGroup"
+            }
+          }
+        },
+        "internetgateway": {
+          "type": "object",
+          "title": "Internet Gateway",
+          "description": "OxideInternetGateway RestDefinition.",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "title": "Enabled",
+              "description": "Emit the OxideInternetGateway RestDefinition.",
+              "default": true
+            },
+            "kind": {
+              "type": "string",
+              "title": "Kind",
+              "description": "Kubernetes kind for the generated CRD.",
+              "default": "OxideInternetGateway"
+            }
+          }
+        },
+        "sshkey": {
+          "type": "object",
+          "title": "SSH Key",
+          "description": "OxideSshKey RestDefinition.",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "title": "Enabled",
+              "description": "Emit the OxideSshKey RestDefinition.",
+              "default": true
+            },
+            "kind": {
+              "type": "string",
+              "title": "Kind",
+              "description": "Kubernetes kind for the generated CRD.",
+              "default": "OxideSshKey"
+            }
+          }
+        },
+        "certificate": {
+          "type": "object",
+          "title": "Certificate",
+          "description": "OxideCertificate RestDefinition.",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "title": "Enabled",
+              "description": "Emit the OxideCertificate RestDefinition.",
+              "default": true
+            },
+            "kind": {
+              "type": "string",
+              "title": "Kind",
+              "description": "Kubernetes kind for the generated CRD.",
+              "default": "OxideCertificate"
+            }
+          }
+        },
+        "silo": {
+          "type": "object",
+          "title": "Silo",
+          "description": "OxideSilo RestDefinition.",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "title": "Enabled",
+              "description": "Emit the OxideSilo RestDefinition.",
+              "default": true
+            },
+            "kind": {
+              "type": "string",
+              "title": "Kind",
+              "description": "Kubernetes kind for the generated CRD.",
+              "default": "OxideSilo"
+            }
+          }
+        },
+        "ippool": {
+          "type": "object",
+          "title": "IP Pool",
+          "description": "OxideIpPool RestDefinition.",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "title": "Enabled",
+              "description": "Emit the OxideIpPool RestDefinition.",
+              "default": true
+            },
+            "kind": {
+              "type": "string",
+              "title": "Kind",
+              "description": "Kubernetes kind for the generated CRD.",
+              "default": "OxideIpPool"
+            }
+          }
+        },
+        "subnetpool": {
+          "type": "object",
+          "title": "Subnet Pool",
+          "description": "OxideSubnetPool RestDefinition.",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "title": "Enabled",
+              "description": "Emit the OxideSubnetPool RestDefinition.",
+              "default": true
+            },
+            "kind": {
+              "type": "string",
+              "title": "Kind",
+              "description": "Kubernetes kind for the generated CRD.",
+              "default": "OxideSubnetPool"
+            }
+          }
+        }
+      }
+    },
+    "resourceGroup": {
+      "type": "string",
+      "title": "Resource group",
+      "description": "Kubernetes API group the generated CRDs register under. GVK = <group>/v1alpha1.",
+      "default": "oxide.ogen.krateo.io"
+    },
+    "verbose": {
+      "type": "boolean",
+      "title": "Verbose logging",
+      "description": "Enable verbose logging on the generated connectors (annotation krateo.io/connector-verbose).",
+      "default": false
+    }
+  }
+}

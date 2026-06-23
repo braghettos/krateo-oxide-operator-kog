@@ -1,0 +1,105 @@
+# ---------------------------------------------------------------------------
+# Oxide target
+# ---------------------------------------------------------------------------
+oxide:
+  # Base URL of the Oxide silo API the generated controllers call. No trailing
+  # slash. Injected into every OAS asset's servers[0].url via Helm `tpl`.
+  # This is your silo endpoint, e.g. https://oxide.example.com (the same host the
+  # `oxide` CLI and the web console talk to).
+  apiUrl: "https://oxide.example.com"
+
+# ---------------------------------------------------------------------------
+# API token
+# ---------------------------------------------------------------------------
+# rest-dynamic-controller reads a bearer token from a Secret referenced by each
+# CR's Configuration (spec.authentication.bearer.tokenRef). Oxide device tokens
+# are long-lived, so — unlike the short-lived Keycloak admin tokens — no rotation
+# machinery is required: create the Secret once from a token minted by
+# `oxide auth login` (see README) and reference it.
+#
+#   kubectl create secret generic oxide-api-token \
+#     --from-literal=token="$(oxide auth status --token)" -n krateo-system
+auth:
+  secretName: oxide-api-token
+  secretKey: token
+
+# ---------------------------------------------------------------------------
+# Which RestDefinitions to emit. Each maps 1:1 to an assets/<key>.yaml OAS.
+# `kind` is intentionally prefixed `Oxide` to avoid crdgen collisions with
+# same-named lowercase body/path identifiers (e.g. kind Vpc vs the `vpc` query
+# param, kind Instance vs the `instance` path/query param).
+#
+# Resources are grouped by the scope of the API token they need:
+#   - silo-user : authenticated user (ssh keys)
+#   - silo      : silo collaborator/admin (projects, certificates, and everything
+#                 inside a project)
+#   - fleet     : fleet/system admin (silos, system IP pools, subnet pools)
+# ---------------------------------------------------------------------------
+restDefinitions:
+  # --- project scope -------------------------------------------------------
+  project:
+    enabled: true
+    kind: OxideProject
+  instance:
+    enabled: true
+    kind: OxideInstance
+  disk:
+    enabled: true
+    kind: OxideDisk
+  snapshot:
+    enabled: true
+    kind: OxideSnapshot
+  image:
+    enabled: true
+    kind: OxideImage
+  vpc:
+    enabled: true
+    kind: OxideVpc
+  vpcsubnet:
+    enabled: true
+    kind: OxideVpcSubnet
+  vpcrouter:
+    enabled: true
+    kind: OxideVpcRouter
+  routerroute:
+    enabled: true
+    kind: OxideRouterRoute
+  floatingip:
+    enabled: true
+    kind: OxideFloatingIp
+  networkinterface:
+    enabled: true
+    kind: OxideNetworkInterface
+  affinitygroup:
+    enabled: true
+    kind: OxideAffinityGroup
+  antiaffinitygroup:
+    enabled: true
+    kind: OxideAntiAffinityGroup
+  internetgateway:
+    enabled: true
+    kind: OxideInternetGateway
+  # --- silo-user scope -----------------------------------------------------
+  sshkey:
+    enabled: true
+    kind: OxideSshKey
+  # --- silo scope ----------------------------------------------------------
+  certificate:
+    enabled: true
+    kind: OxideCertificate
+  # --- fleet/system scope --------------------------------------------------
+  silo:
+    enabled: true
+    kind: OxideSilo
+  ippool:
+    enabled: true
+    kind: OxideIpPool
+  subnetpool:
+    enabled: true
+    kind: OxideSubnetPool
+
+# Kubernetes API group the generated CRDs register under. GVK = <group>/v1alpha1.
+resourceGroup: oxide.ogen.krateo.io
+
+# verbose logging on the generated connectors (annotation krateo.io/connector-verbose)
+verbose: false

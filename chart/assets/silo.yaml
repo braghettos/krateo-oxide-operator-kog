@@ -1,0 +1,190 @@
+openapi: 3.0.3
+info:
+  title: Oxide Region API - Silo (KOG subset)
+  version: v1
+  description: 'Hand-curated OpenAPI 3.0 subset of the Oxide Region API for the Silo resource, sufficient
+    to manage it declaratively through the Krateo Operator Generator (KOG). A silo: a fleet-level tenancy
+    boundary. FLEET-ADMIN scope. Immutable (no update verb).
+
+
+    Oxide addresses resources by their user-supplied `name` (the {silo} path parameter); the server-generated
+    `id` is read-only. The http/bearer security scheme makes oasgen-provider emit a OxideSiloConfiguration
+    CRD carrying the API token.'
+servers:
+- url: '{{ .Values.oxide.apiUrl }}'
+  description: Base URL of the Oxide silo API (no trailing slash).
+security:
+- bearer: []
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+      description: 'Oxide API token (Authorization: Bearer <token>).'
+  schemas:
+    OxideSiloCreate:
+      type: object
+      required:
+      - name
+      - description
+      - discoverable
+      - identity_mode
+      - quotas
+      - tls_certificates
+      properties:
+        name:
+          type: string
+          description: Names must begin with a lowercase ASCII letter, be composed of lowercase/uppercase
+            ASCII, numbers and '-', and may not end with '-'. At most 63 chars. Cannot be a bare UUID.
+          minLength: 1
+          maxLength: 63
+          pattern: ^(?![0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$)^[a-z]([a-zA-Z0-9-]*[a-zA-Z0-9]+)?$
+        description:
+          type: string
+          description: Human-readable free-form text about the resource.
+        discoverable:
+          type: boolean
+          description: If false, the silo can be retrieved only by id.
+        identity_mode:
+          type: string
+          enum:
+          - saml_jit
+          - local_only
+          - saml_scim
+          description: How users/groups are managed and authenticated.
+        admin_group_name:
+          type: string
+          description: Optional group granted silo admin on creation.
+        quotas:
+          type: object
+          description: Provisionable resource limits for the silo. 0 means that resource is not provisionable.
+          required:
+          - cpus
+          - memory
+          - storage
+          properties:
+            cpus:
+              type: integer
+              format: int64
+              description: Virtual CPUs available for running instances.
+            memory:
+              type: integer
+              format: int64
+              description: RAM (bytes) available for running instances.
+            storage:
+              type: integer
+              format: int64
+              description: Storage (bytes) available for disks/snapshots.
+        tls_certificates:
+          type: array
+          items:
+            type: object
+            required:
+            - name
+            - description
+            - cert
+            - key
+            - service
+            properties:
+              name:
+                type: string
+                description: Names must begin with a lowercase ASCII letter, be composed of lowercase/uppercase
+                  ASCII, numbers and '-', and may not end with '-'. At most 63 chars. Cannot be a bare
+                  UUID.
+                minLength: 1
+                maxLength: 63
+                pattern: ^(?![0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$)^[a-z]([a-zA-Z0-9-]*[a-zA-Z0-9]+)?$
+              description:
+                type: string
+              cert:
+                type: string
+                description: PEM public certificate chain.
+              key:
+                type: string
+                description: PEM private key.
+              service:
+                type: string
+                enum:
+                - external_api
+                description: The service using this certificate.
+          description: Initial TLS certificates for the silo console/API (may be empty).
+    OxideSilo:
+      type: object
+      required:
+      - id
+      - name
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Server-generated immutable identifier.
+        name:
+          type: string
+          description: User-supplied name (natural key).
+        description:
+          type: string
+        time_created:
+          type: string
+          format: date-time
+          readOnly: true
+        time_modified:
+          type: string
+          format: date-time
+          readOnly: true
+paths:
+  /v1/system/silos:
+    post:
+      operationId: createOxideSilo
+      summary: Create Silo
+      tags:
+      - silo
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OxideSiloCreate'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OxideSilo'
+  /v1/system/silos/{silo}:
+    get:
+      operationId: getOxideSilo
+      summary: Get Silo
+      tags:
+      - silo
+      parameters:
+      - name: silo
+        in: path
+        required: true
+        schema:
+          type: string
+          description: A Name or a UUID.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OxideSilo'
+    delete:
+      operationId: deleteOxideSilo
+      summary: Delete Silo
+      tags:
+      - silo
+      parameters:
+      - name: silo
+        in: path
+        required: true
+        schema:
+          type: string
+          description: A Name or a UUID.
+      responses:
+        '204':
+          description: Deleted

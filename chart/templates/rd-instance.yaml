@@ -1,0 +1,49 @@
+{{- if .Values.restDefinitions.instance.enabled }}
+apiVersion: ogen.krateo.io/v1alpha1
+kind: RestDefinition
+metadata:
+  name: {{ .Release.Name }}-instance
+  labels:
+    {{- include "krateo-oxide-operator-kog.labels" . | nindent 4 }}
+  {{- if .Values.verbose }}
+  annotations:
+    krateo.io/connector-verbose: "true"
+  {{- end }}
+spec:
+  oasPath: configmap://{{ .Release.Namespace }}/{{ .Release.Name }}-instance/instance.yaml
+  resourceGroup: {{ .Values.resourceGroup }}
+  resource:
+    kind: {{ .Values.restDefinitions.instance.kind }}
+    # OxideInstance is addressed by its user-supplied `name` (the {instance} path param); `id` is
+    # server-generated/read-only. Project-scoped: the `project` query param is a spec field.
+    identifiers:
+      - name
+    additionalStatusFields:
+      - id
+    # The {instance} path placeholder would otherwise surface as a redundant spec field;
+    # exclude it and source its value from spec.name via requestFieldMapping below.
+    excludedSpecFields:
+      - instance
+    verbsDescription:
+      - action: create
+        method: POST
+        path: /v1/instances
+      - action: get
+        method: GET
+        path: /v1/instances/{instance}
+        requestFieldMapping:
+          - inPath: instance
+            inCustomResource: spec.name
+      - action: update
+        method: PUT
+        path: /v1/instances/{instance}
+        requestFieldMapping:
+          - inPath: instance
+            inCustomResource: spec.name
+      - action: delete
+        method: DELETE
+        path: /v1/instances/{instance}
+        requestFieldMapping:
+          - inPath: instance
+            inCustomResource: spec.name
+{{- end }}

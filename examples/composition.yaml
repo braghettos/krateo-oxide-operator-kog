@@ -1,0 +1,49 @@
+# Example Composition for the Krateo Oxide Computer KOG blueprint.
+#
+# Applying this installs the KOG OPERATOR layer: the per-resource RestDefinitions
+# (OxideProject / OxideInstance / OxideDisk / ... / OxideSubnetPool). oasgen-provider
+# turns each RestDefinition into a CRD pair: a <Kind>Configuration (carrying the API
+# token reference) and the resource <Kind> itself.
+#
+# It does NOT create Oxide resources itself. Once the operator is running and the
+# generated CRDs exist, declare actual cloud resources with the per-resource CRs
+# (see chart/samples/).
+#
+# apiVersion / Kind convention: crdgen derives the CRD from the CompositionDefinition.
+# group = composition.krateo.io, version from the chart version 0.1.0 => v0-1-0,
+# Kind = PascalCase of the CD metadata.name with hyphens removed
+# (krateo-oxide-operator-kog => KrateoOxideOperatorKog).
+#
+# Prereq: a Secret holding your Oxide API token in the target namespace, e.g.
+#   kubectl create secret generic oxide-api-token \
+#     --from-literal=token="$(oxide auth status --token)" -n krateo-system
+---
+apiVersion: composition.krateo.io/v0-1-0
+kind: KrateoOxideOperatorKog
+metadata:
+  name: krateo-oxide-operator-kog
+  namespace: krateo-system
+spec:
+  oxide:
+    # THE key input: the base URL of your Oxide silo API (no trailing slash).
+    apiUrl: https://oxide.example.com
+  auth:
+    secretName: oxide-api-token
+    secretKey: token
+  restDefinitions:
+    # Enable the resources you want this install to manage. Disable the
+    # fleet-admin ones unless the token has fleet-admin scope.
+    project:
+      enabled: true
+    instance:
+      enabled: true
+    disk:
+      enabled: true
+    vpc:
+      enabled: true
+    silo:
+      enabled: false
+    ippool:
+      enabled: false
+    subnetpool:
+      enabled: false

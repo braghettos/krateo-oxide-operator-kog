@@ -1,0 +1,49 @@
+{{- if .Values.restDefinitions.antiaffinitygroup.enabled }}
+apiVersion: ogen.krateo.io/v1alpha1
+kind: RestDefinition
+metadata:
+  name: {{ .Release.Name }}-antiaffinitygroup
+  labels:
+    {{- include "krateo-oxide-operator-kog.labels" . | nindent 4 }}
+  {{- if .Values.verbose }}
+  annotations:
+    krateo.io/connector-verbose: "true"
+  {{- end }}
+spec:
+  oasPath: configmap://{{ .Release.Namespace }}/{{ .Release.Name }}-antiaffinitygroup/antiaffinitygroup.yaml
+  resourceGroup: {{ .Values.resourceGroup }}
+  resource:
+    kind: {{ .Values.restDefinitions.antiaffinitygroup.kind }}
+    # OxideAntiAffinityGroup is addressed by its user-supplied `name` (the {anti_affinity_group} path param); `id` is
+    # server-generated/read-only. Project-scoped: the `project` query param is a spec field.
+    identifiers:
+      - name
+    additionalStatusFields:
+      - id
+    # The {anti_affinity_group} path placeholder would otherwise surface as a redundant spec field;
+    # exclude it and source its value from spec.name via requestFieldMapping below.
+    excludedSpecFields:
+      - anti_affinity_group
+    verbsDescription:
+      - action: create
+        method: POST
+        path: /v1/anti-affinity-groups
+      - action: get
+        method: GET
+        path: /v1/anti-affinity-groups/{anti_affinity_group}
+        requestFieldMapping:
+          - inPath: anti_affinity_group
+            inCustomResource: spec.name
+      - action: update
+        method: PUT
+        path: /v1/anti-affinity-groups/{anti_affinity_group}
+        requestFieldMapping:
+          - inPath: anti_affinity_group
+            inCustomResource: spec.name
+      - action: delete
+        method: DELETE
+        path: /v1/anti-affinity-groups/{anti_affinity_group}
+        requestFieldMapping:
+          - inPath: anti_affinity_group
+            inCustomResource: spec.name
+{{- end }}

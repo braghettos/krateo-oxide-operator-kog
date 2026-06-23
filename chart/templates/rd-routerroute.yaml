@@ -1,0 +1,49 @@
+{{- if .Values.restDefinitions.routerroute.enabled }}
+apiVersion: ogen.krateo.io/v1alpha1
+kind: RestDefinition
+metadata:
+  name: {{ .Release.Name }}-routerroute
+  labels:
+    {{- include "krateo-oxide-operator-kog.labels" . | nindent 4 }}
+  {{- if .Values.verbose }}
+  annotations:
+    krateo.io/connector-verbose: "true"
+  {{- end }}
+spec:
+  oasPath: configmap://{{ .Release.Namespace }}/{{ .Release.Name }}-routerroute/routerroute.yaml
+  resourceGroup: {{ .Values.resourceGroup }}
+  resource:
+    kind: {{ .Values.restDefinitions.routerroute.kind }}
+    # OxideRouterRoute is addressed by its user-supplied `name` (the {route} path param); `id` is
+    # server-generated/read-only. Router-scoped via the `router` (and optional `vpc`/`project`) query param.
+    identifiers:
+      - name
+    additionalStatusFields:
+      - id
+    # The {route} path placeholder would otherwise surface as a redundant spec field;
+    # exclude it and source its value from spec.name via requestFieldMapping below.
+    excludedSpecFields:
+      - route
+    verbsDescription:
+      - action: create
+        method: POST
+        path: /v1/vpc-router-routes
+      - action: get
+        method: GET
+        path: /v1/vpc-router-routes/{route}
+        requestFieldMapping:
+          - inPath: route
+            inCustomResource: spec.name
+      - action: update
+        method: PUT
+        path: /v1/vpc-router-routes/{route}
+        requestFieldMapping:
+          - inPath: route
+            inCustomResource: spec.name
+      - action: delete
+        method: DELETE
+        path: /v1/vpc-router-routes/{route}
+        requestFieldMapping:
+          - inPath: route
+            inCustomResource: spec.name
+{{- end }}
