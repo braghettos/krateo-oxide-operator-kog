@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" width="1200" height="360" role="img" aria-label="Krateo loves Oxide Computer">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a0e0c"/>
+      <stop offset="1" stop-color="#11201a"/>
+    </linearGradient>
+    <linearGradient id="oxide" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#48d597"/>
+      <stop offset="1" stop-color="#2fae7a"/>
+    </linearGradient>
+    <linearGradient id="krateo" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff8a4c"/>
+      <stop offset="1" stop-color="#ff5e3a"/>
+    </linearGradient>
+    <style>
+      .title { font: 700 64px ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+      .sub   { font: 400 26px ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+      .mono  { font: 500 19px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+      .chip  { font: 600 18px ui-sans-serif, system-ui, Roboto, Helvetica, Arial, sans-serif; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="360" rx="20" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#oxide)"/>
+
+  <!-- Krateo mark: stylized layered "crate" -->
+  <g transform="translate(96,150)">
+    <rect x="-46" y="-46" width="92" height="92" rx="14" fill="none" stroke="url(#krateo)" stroke-width="8"/>
+    <rect x="-22" y="-22" width="44" height="44" rx="8" fill="url(#krateo)"/>
+  </g>
+
+  <!-- Heart -->
+  <g transform="translate(300,150)">
+    <path d="M0 26 C -34 -10, -64 14, 0 56 C 64 14, 34 -10, 0 26 Z" fill="url(#krateo)"/>
+  </g>
+
+  <!-- Oxide mark: hexagonal rack node -->
+  <g transform="translate(470,150)">
+    <polygon points="0,-52 45,-26 45,26 0,52 -45,26 -45,-26" fill="none" stroke="url(#oxide)" stroke-width="8"/>
+    <polygon points="0,-22 19,-11 19,11 0,22 -19,11 -19,-11" fill="url(#oxide)"/>
+  </g>
+
+  <!-- Wordmark -->
+  <text x="566" y="138" class="title" fill="#f4f7f5">Krateo
+    <tspan fill="#ff7a45"> &#10084; </tspan>
+    <tspan fill="#48d597">Oxide</tspan>
+  </text>
+  <text x="568" y="182" class="sub" fill="#9fb3aa">Oxide Computer Cloud, as native Kubernetes CRs.</text>
+
+  <!-- KOG pipeline strip -->
+  <g transform="translate(568,232)">
+    <rect x="0"   y="0" width="190" height="40" rx="10" fill="#16241d" stroke="#2c4a3c" stroke-width="1.5"/>
+    <text x="95"  y="26" text-anchor="middle" class="chip" fill="#cde0d7">RestDefinition</text>
+
+    <text x="206" y="27" class="mono" fill="#48d597">&#8594;</text>
+
+    <rect x="234" y="0" width="232" height="40" rx="10" fill="#16241d" stroke="#2c4a3c" stroke-width="1.5"/>
+    <text x="350" y="26" text-anchor="middle" class="chip" fill="#cde0d7">rest-dynamic-controller</text>
+
+    <text x="482" y="27" class="mono" fill="#48d597">&#8594;</text>
+
+    <rect x="510" y="0" width="150" height="40" rx="10" fill="#1c2a16" stroke="#3c5a2c" stroke-width="1.5"/>
+    <text x="585" y="26" text-anchor="middle" class="chip" fill="#dce8c8">Oxide API</text>
+  </g>
+
+  <!-- footer tag -->
+  <text x="566" y="320" class="mono" fill="#6f857b">oasgen-provider &#183; 19 resources &#183; bearer-token auth</text>
+</svg>

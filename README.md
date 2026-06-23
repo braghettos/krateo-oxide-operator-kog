@@ -1,3 +1,10 @@
+<p align="center">
+  <img src="docs/krateo-loves-oxide.svg" alt="Krateo loves Oxide Computer" width="900"/>
+</p>
+
+> 📖 **[Quickstart](docs/quickstart.md)** — install the operator and watch a project and instance appear in the Oxide console.
+
+
 # krateo-oxide-operator-kog
 
 Krateo Operator Generator (KOG) packaging that turns **[Oxide Computer](https://oxide.computer/) Cloud**
