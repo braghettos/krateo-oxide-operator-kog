@@ -1,6 +1,8 @@
 <p align="center">
-  <img src="docs/krateo-loves-oxide.svg" alt="Krateo loves Oxide Computer" width="900"/>
+  <img src="https://raw.githubusercontent.com/krateoplatformops/krateo/main/docs/media/logo.svg" alt="Krateo" width="180"/>
 </p>
+
+<h1 align="center">Krateo 🧡 Oxide</h1>
 
 > 📖 **[Quickstart](docs/quickstart.md)** — install the operator and watch a project and instance appear in the Oxide console.
 
