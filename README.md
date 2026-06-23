@@ -1,7 +1,7 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/krateoplatformops/krateo/main/docs/media/logo.svg" alt="Krateo" height="96"/>
+  <img src="docs/krateo-logo.svg" alt="Krateo" height="80"/>
   &nbsp;&nbsp;❤️&nbsp;&nbsp;
-  <img src="https://raw.githubusercontent.com/oxidecomputer/oxide-oxql-datasource/main/src/img/logo.svg" alt="Oxide Computer" height="96"/>
+  <img src="docs/oxide-logo.svg" alt="Oxide Computer" height="80"/>
 </p>
 
 > 📖 **[Quickstart](docs/quickstart.md)** — install the operator and watch a project and instance appear in the Oxide console.
